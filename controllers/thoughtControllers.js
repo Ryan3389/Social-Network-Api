@@ -1,4 +1,5 @@
 const Thought = require('../models/Thought')
+const User = require('../models/User')
 
 module.exports = {
     async getAllThoughts(req, res) {
@@ -13,10 +14,10 @@ module.exports = {
 
     async getSingleThought(req, res) {
         try {
-            const thought = await Thought.findOne(req.params.id)
+            const thought = await Thought.findOne({ _id: req.params.id })
 
             if (!thought) {
-                res.status(404).json('Thought not found')
+                return res.status(404).json('Thought not found')
             }
 
             res.status(200).json(thought)
@@ -29,6 +30,11 @@ module.exports = {
     async createThought(req, res) {
         try {
             const thought = await Thought.create(req.body)
+
+            await User.findOneAndUpdate(
+                { username: req.body.username },
+                { $push: { thoughts: thought._id } }
+            )
             res.status(200).json(thought)
         } catch (error) {
             console.error(error)
@@ -40,7 +46,7 @@ module.exports = {
         try {
             const thought = await Thought.findOneAndUpdate(
                 { _id: req.params.id },
-                { thoughtText: req.body, username: req.body },
+                { thoughtText: req.body.thoughtText, username: req.body.username },
                 { new: true }
             )
 
@@ -53,16 +59,23 @@ module.exports = {
 
     async deleteThought(req, res) {
         try {
-            const thought = await Thought.findOne(req.params.id)
-            const deletedThought = await Thought.findOneAndDelete(thought)
+            const thought = await Thought.findOne({ _id: req.params.id });
 
-            if (!deletedThought) {
-                res.status(404).json({ message: 'Thought not found' })
+            if (!thought) {
+                return res.status(404).json({ message: 'Thought not found' });
             }
-            res.status(200).json(deletedThought)
+
+            const deletedThought = await Thought.findOneAndDelete({ _id: thought._id });
+
+            await User.findOneAndUpdate(
+                { username: thought.username },
+                { $pull: { thoughts: thought._id } }
+            );
+
+            res.status(200).json(deletedThought);
         } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
+            console.error(error);
+            res.status(500).json(error);
         }
     }
 }

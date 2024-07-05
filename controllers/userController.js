@@ -1,26 +1,28 @@
-const User = require('../models/User')
+const User = require('../models/User');
 const Thought = require('../models/Thought')
 
 module.exports = {
     async getAllUsers(req, res) {
         try {
-            const user = await User.find()
-            res.status(200).json(user)
+            const users = await User.find().populate('thoughts')
+            res.status(200).json(users)
         } catch (error) {
-            console.error(error)
+            console.error(error);
             res.status(500).json(error)
         }
     },
 
     async getSingleUser(req, res) {
         try {
-            const singleUser = await User.findOne({ _id: req.params.id })
+            const user = await User.findOne({ _id: req.params.id })
                 .select('__v')
+                .populate('thoughts');
 
-            if (!singleUser) {
-                res.status(404).json({ message: 'User not found' })
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' })
             }
-            res.status(200).json(singleUser)
+
+            res.status(200).json(user)
         } catch (error) {
             console.error(error)
             res.status(500).json(error)
@@ -37,36 +39,35 @@ module.exports = {
         }
     },
 
-    //check class activities if this is correct
     async updateUser(req, res) {
         try {
-
             const updatedUser = await User.findOneAndUpdate(
                 { _id: req.params.id },
-                { username: req.body, email: req.body },
+                { username: req.body.username, email: req.body.email },
                 { new: true }
-            )
+            );
 
             res.status(200).json(updatedUser)
         } catch (error) {
-            console.error(error)
+            console.error(error);
             res.status(500).json(error)
         }
     },
 
     async deleteUser(req, res) {
         try {
-            const user = User.findOne(req.params.id)
+            const user = await User.findOne({ _id: req.params.id })
 
-            const deletedUser = User.findOneAndDelete(user)
-
-            if (!deletedUser) {
-                res.status(404).json({ message: 'User not found' })
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' })
             }
+
+            const deletedUser = await User.findOneAndDelete({ _id: user._id })
+
             res.status(200).json(deletedUser)
         } catch (error) {
             console.error(error)
             res.status(500).json(error)
         }
     }
-}
+};
