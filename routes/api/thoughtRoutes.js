@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const reactionRoutes = require('./reactionRoutes')
 
 const {
     getAllThoughts,
@@ -8,8 +9,10 @@ const {
     deleteThought
 } = require('../../controllers/thoughtControllers')
 
-// /api/thoughts
+// Thought Routes
 router.route('/').get(getAllThoughts).post(createThought)
 router.route('/:id').get(getSingleThought).put(updateThought).delete(deleteThought)
 
+//Reaction Routes
+router.use('/:thoughtId/reactions', reactionRoutes)
 module.exports = router

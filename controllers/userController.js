@@ -45,7 +45,7 @@ module.exports = {
                 { _id: req.params.id },
                 { username: req.body.username, email: req.body.email },
                 { new: true }
-            );
+            )
 
             res.status(200).json(updatedUser)
         } catch (error) {
