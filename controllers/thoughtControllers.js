@@ -77,5 +77,24 @@ module.exports = {
             console.error(error);
             res.status(500).json(error);
         }
+    },
+
+    async createReaction(req, res) {
+        try {
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtId },
+                { $addToSet: { reactions: req.body } },
+                { runValidators: true, new: true }
+            )
+
+            if (!thought) {
+                return res.status(404).json('Thought not found')
+            }
+
+            res.status(200).json(thought)
+        } catch (error) {
+            console.error(error)
+            res.status(500).json(error)
+        }
     }
 }
