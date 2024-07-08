@@ -69,5 +69,53 @@ module.exports = {
             console.error(error)
             res.status(500).json(error)
         }
+    },
+
+    async addFriend(req, res) {
+        try {
+            const friendId = req.params.friendId;
+
+
+            if (!friendId.match(/^[0-9a-fA-F]{24}$/)) {
+                return res.status(400).json({ message: 'Invalid friend ID' });
+            }
+
+            const user = await User.findOneAndUpdate(
+                { _id: req.params.userId },
+                { $addToSet: { friends: friendId } },
+                { new: true }
+            ).populate('friends');
+
+            if (!user) {
+                return res.status(404).json('No user found');
+            }
+
+            res.status(200).json(user);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json(error);
+        }
     }
 };
+
+// async addFriend(req, res) {
+//     try {
+//         const user = await User.findOneAndUpdate(
+//             { _id: req.params.userId },
+//             { $addToSet: { friends: req.body } },
+//             { new: true }
+//         )
+
+//         if (!user) {
+//             return res.status(404).json('No user found')
+//         }
+
+//         res.status(200).json(user)
+
+//     } catch (error) {
+//         console.error(error)
+//         res.status(500).json(error)
+//     }
+// }
+//};
