@@ -18,19 +18,24 @@ module.exports = {
     async getSingleUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.id })
-                .select('__v')
-                .populate('thoughts');
+                .select('-__v')
+                .populate({ path: 'thoughts', options: { lean: true, virtuals: false } })
+                .populate({ path: 'friends', select: 'username _id', options: { lean: true, virtuals: false } });
 
             if (!user) {
-                return res.status(404).json({ message: 'User not found' })
+                return res.status(404).json({ message: 'User not found' });
             }
 
-            res.status(200).json(user)
+
+            const userObject = user.toObject({ virtuals: true });
+
+            res.status(200).json(userObject);
         } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
+            console.error(error);
+            res.status(500).json(error);
         }
     },
+
 
     async createUser(req, res) {
         try {
