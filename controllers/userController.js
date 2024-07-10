@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Thought = require('../models/Thought')
 
 module.exports = {
+    //get all users
     async getAllUsers(req, res) {
         try {
             let users = await User.find()
@@ -15,23 +16,29 @@ module.exports = {
         }
     },
 
+    //get single user
     async getSingleUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.id })
-                .select('__v')
-                .populate('thoughts');
+                .select('-__v')
+                .populate({ path: 'thoughts', options: { lean: true, virtuals: false } })
+                .populate({ path: 'friends', select: 'username _id', options: { lean: true, virtuals: false } });
 
             if (!user) {
-                return res.status(404).json({ message: 'User not found' })
+                return res.status(404).json({ message: 'User not found' });
             }
 
-            res.status(200).json(user)
+
+            const userObject = user.toObject({ virtuals: true });
+
+            res.status(200).json(userObject);
         } catch (error) {
-            console.error(error)
-            res.status(500).json(error)
+            console.error(error);
+            res.status(500).json(error);
         }
     },
 
+    ///create user
     async createUser(req, res) {
         try {
             const newUser = await User.create(req.body)
@@ -42,6 +49,7 @@ module.exports = {
         }
     },
 
+    //update user
     async updateUser(req, res) {
         try {
             const updatedUser = await User.findOneAndUpdate(
@@ -57,6 +65,7 @@ module.exports = {
         }
     },
 
+    //delete user
     async deleteUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.id })
@@ -74,6 +83,7 @@ module.exports = {
         }
     },
 
+    //add friend
     async addFriend(req, res) {
         try {
             const friendId = req.params.friendId;
@@ -102,6 +112,7 @@ module.exports = {
         }
     },
 
+    //delete friend
     async deleteFriend(req, res) {
         try {
             const user = await User.findOneAndUpdate(
