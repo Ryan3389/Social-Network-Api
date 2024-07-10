@@ -1,5 +1,4 @@
 const router = require('express').Router()
-// const reactionRoutes = require('./reactionRoutes')
 
 const {
     getAllThoughts,

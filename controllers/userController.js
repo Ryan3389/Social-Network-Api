@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Thought = require('../models/Thought')
 
 module.exports = {
+    //get all users
     async getAllUsers(req, res) {
         try {
             let users = await User.find()
@@ -15,6 +16,7 @@ module.exports = {
         }
     },
 
+    //get single user
     async getSingleUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.id })
@@ -36,7 +38,7 @@ module.exports = {
         }
     },
 
-
+    ///create user
     async createUser(req, res) {
         try {
             const newUser = await User.create(req.body)
@@ -47,6 +49,7 @@ module.exports = {
         }
     },
 
+    //update user
     async updateUser(req, res) {
         try {
             const updatedUser = await User.findOneAndUpdate(
@@ -62,6 +65,7 @@ module.exports = {
         }
     },
 
+    //delete user
     async deleteUser(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.id })
@@ -79,6 +83,7 @@ module.exports = {
         }
     },
 
+    //add friend
     async addFriend(req, res) {
         try {
             const friendId = req.params.friendId;
@@ -107,6 +112,7 @@ module.exports = {
         }
     },
 
+    //delete friend
     async deleteFriend(req, res) {
         try {
             const user = await User.findOneAndUpdate(
